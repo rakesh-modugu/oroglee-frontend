@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import API_BASE_URL from '../config';
 
 function BookingModal({ isOpen, onClose, dentist }) {
   const [formData, setFormData] = useState({
@@ -10,8 +11,13 @@ function BookingModal({ isOpen, onClose, dentist }) {
 
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState('');
+  const [toast, setToast] = useState({ show: false, message: '' });
 
-  if (!isOpen) return null;
+  const showToast = (message) => {
+    setToast({ show: true, message });
+    setTimeout(() => setToast({ show: false, message: '' }), 3000);
+  };
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -41,31 +47,43 @@ function BookingModal({ isOpen, onClose, dentist }) {
     };
 
     try {
-      const res = await fetch('http://localhost:5000/api/appointments', {
+      const res = await fetch(`${API_BASE_URL}/api/appointments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        alert('Appointment booked successfully! 🎉');
         setFormData({ patientName: '', age: '', gender: '', appointmentDate: '' });
         setLoading(false);
         onClose();
+        showToast('Appointment Booked Successfully! 🎉');
       } else {
         const errorData = await res.json();
-        alert('Booking failed: ' + errorData.message);
+        setFormError('Booking failed: ' + errorData.message);
         setLoading(false);
       }
     } catch (err) {
-      alert('Something went wrong. Please try again.');
+      setFormError('Something went wrong. Please try again.');
       setLoading(false);
     }
   };
 
   return (
-    /* Overlay */
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center px-4">
+    <>
+      {/* Toast Notification */}
+      <div
+        className={`fixed top-5 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl transition-all duration-500 z-[60] flex items-center gap-3 ${
+          toast.show ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0'
+        }`}
+      >
+        <span>✅</span>
+        <p className="font-medium text-sm">{toast.message}</p>
+      </div>
+
+      {/* Overlay */}
+      {isOpen && (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center px-4">
 
       {/* Modal Box */}
       <form
@@ -177,7 +195,9 @@ function BookingModal({ isOpen, onClose, dentist }) {
         </div>
 
       </form>
-    </div>
+      </div>
+      )}
+    </>
   );
 }
 

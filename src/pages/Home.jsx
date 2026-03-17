@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import DentistCard from '../components/DentistCard';
 import BookingModal from '../components/BookingModal';
+import API_BASE_URL from '../config';
 
 function Home() {
   const [dentists, setDentists] = useState([]);
@@ -14,7 +15,7 @@ function Home() {
   useEffect(() => {
     async function fetchDentists() {
       try {
-        const response = await fetch('http://localhost:5000/api/dentists');
+        const response = await fetch(`${API_BASE_URL}/api/dentists`);
         const data = await response.json();
         setDentists(data);
       } catch (err) {

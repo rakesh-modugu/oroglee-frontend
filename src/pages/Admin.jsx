@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import API_BASE_URL from '../config';
 
 function Admin() {
   const [appointments, setAppointments] = useState([]);
@@ -10,7 +11,7 @@ function Admin() {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this appointment?')) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/appointments/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -27,7 +28,7 @@ function Admin() {
   // PATCH toggle status (Booked <-> Completed)
   const handleToggleStatus = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/appointments/${id}/status`, {
+      const res = await fetch(`${API_BASE_URL}/api/appointments/${id}/status`, {
         method: 'PATCH',
       });
       if (res.ok) {
@@ -48,8 +49,8 @@ function Admin() {
     async function fetchAppointments() {
       try {
         const [apptRes, docsRes] = await Promise.all([
-          fetch('http://localhost:5000/api/appointments'),
-          fetch('http://localhost:5000/api/dentists'),
+          fetch(`${API_BASE_URL}/api/appointments`),
+          fetch(`${API_BASE_URL}/api/dentists`),
         ]);
         const apptData = await apptRes.json();
         const docsData = await docsRes.json();
